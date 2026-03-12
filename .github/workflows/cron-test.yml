@@ -1,0 +1,26 @@
+name: Cron Test
+
+on:
+  schedule:
+    - cron: '*/1 * * * *'  # Runs every minute
+
+jobs:
+  test-cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Append timestamp to calendertimes.json
+        run: |
+          echo "{\"timestamp\": \"$(date)\"}," >> calendertimes.json
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add calendertimes.json
+          git commit -m "Add timestamp via cron" || echo "No changes to commit"
+          git push
