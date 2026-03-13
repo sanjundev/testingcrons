@@ -7,8 +7,6 @@ on:
 jobs:
   test-cron:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.1.7
@@ -17,7 +15,12 @@ jobs:
 
       - name: Append timestamp to calendertimes.json
         run: |
-          echo "{\"timestamp\": \"$(date)\"}," >> calendertimes.json
+          if [ ! -s calendertimes.json ]; then
+            echo "[{\"timestamp\": \"$(date)\"}]" > calendertimes.json
+          else
+            sed -i '$ s/]$//' calendertimes.json
+            echo ",{\"timestamp\": \"$(date)\"}]" >> calendertimes.json
+          fi
 
       - name: Commit and push changes
         run: |
